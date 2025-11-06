@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRKACADEMY - JAMB UTME 2026 Examination Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1565C0;
+            --primary-dark: #0D47A1;
+            --secondary: #FF9800;
+            --secondary-dark: #F57C00;
+            --success: #4CAF50;
+            --danger: #F44336;
+            --warning: #FFC107;
+            --info: #2196F3;
+            --light: #F5F7FA;
+            --dark: #263238;
+            --accent: #42A5F5;
+            --light-blue: #E3F2FD;
+            --cream: #FFF8E1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+            width: 100%;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .academy-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .academy-tagline {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .exam-year {
+            background: var(--secondary);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px 15px;
+            margin: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 5px;
+            font-weight: 600;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-success:hover {
+            background: #388E3C;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: #D32F2F;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+        
+        .btn-warning:hover {
+            background: #FFA000;
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #1976D2;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--secondary-dark);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .timer {
+            background: var(--dark);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 10px;
+            border-radius: 6px;
+        }
+        
+        .subject-tabs {
+            display: flex;
+            background: var(--light);
+            border-radius: 6px;
+            padding: 5px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+        
+        .subject-tab {
+            flex: 1;
+            padding: 10px 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            white-space: nowrap;
+            min-width: 120px;
+            font-size: 0.9rem;
+        }
+        
+        .subject-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .subject-tab:not(.active):hover {
+            background: rgba(21, 101, 192, 0.1);
+        }
+        
+        .question-container {
+            margin-bottom: 20px;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--light);
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .question-text {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        
+        .option {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .option:hover {
+            background: #f8f9fa;
+            border-color: #bbb;
+        }
+        
+        .option.selected {
+            background: var(--light-blue);
+            border-color: var(--primary);
+        }
+        
+        .option-letter {
+            background: #e9ecef;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .option.selected .option-letter {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav-buttons .btn {
+            flex: 1;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .result-card {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        /* IMPROVED TABLE STYLES */
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+            margin: 15px 0;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.75rem;
+            background: white;
+        }
+        
+        th {
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Specific column widths for better organization */
+        th:nth-child(1), td:nth-child(1) { /* Rank */
+            width: 50px;
+            text-align: center;
+        }
+        
+        th:nth-child(2), td:nth-child(2) { /* Name */
+            min-width: 150px;
+            max-width: 200px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        
+        th:nth-child(3), td:nth-child(3) { /* Reg No */
+            min-width: 100px;
+        }
+        
+        th:nth-child(4), td:nth-child(4),
+        th:nth-child(5), td:nth-child(5),
+        th:nth-child(6), td:nth-child(6),
+        th:nth-child(7), td:nth-child(7) { /* Subject scores */
+            width: 60px;
+            text-align: center;
+        }
+        
+        th:nth-child(8), td:nth-child(8) { /* Total */
+            width: 80px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        th:nth-child(9), td:nth-child(9) { /* Percentage */
+            width: 80px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        th:nth-child(10), td:nth-child(10) { /* Date */
+            min-width: 100px;
+        }
+        
+        th:nth-child(11), td:nth-child(11) { /* Actions */
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        /* Make action buttons fit better in table */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        
+        /* Tablet and Desktop improvements */
+        @media (min-width: 768px) {
+            table {
+                font-size: 0.85rem;
+            }
+            
+            th {
+                font-size: 0.85rem;
+                padding: 14px 10px;
+            }
+            
+            td {
+                padding: 12px 10px;
+            }
+            
+            .action-buttons .btn-sm {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Mobile: Add horizontal scroll indicator */
+        @media (max-width: 767px) {
+            .table-container::after {
+                content: '← Scroll to see more →';
+                display: block;
+                text-align: center;
+                padding: 8px;
+                background: #f8f9fa;
+                font-size: 0.75rem;
+                color: #666;
+                font-style: italic;
+            }
+            
+            /* Smaller font on mobile for better fit */
+            table {
+                font-size: 0.7rem;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+            }
+        }
+        
+        /* Alternating row colors for better readability */
+        tbody tr:nth-child(odd) {
+            background-color: #fafafa;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: white;
+        }
+        
+        /* Add this to handle email column specifically in admin table */
+        #adminResultsContainer td:nth-child(2) { /* Email column */
+            min-width: 150px;
+            max-width: 200px;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 8px 0;
+            border-left: 4px solid #f44336;
+            font-size: 0.9rem;
+        }
+        
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 8px 0;
+            border-left: 4px solid #4caf50;
+            font-size: 0.9rem;
+        }
+        
+        .admin-login {
+            max-width: 100%;
+            margin: 30px auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .share-link {
+            background: var(--light-blue);
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .subject-card {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 12px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .strength-card {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+        }
+        
+        .weakness-card {
+            background: #ffebee;
+            border-left: 4px solid var(--danger);
+        }
+        
+        .good-card {
+            background: #fff8e1;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .search-box {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            width: auto;
+        }
+        
+        .performance-summary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .performance-level {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        
+        .result-analysis {
+            margin: 20px 0;
+        }
+        
+        .analysis-section {
+            margin: 20px 0;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tip-list {
+            padding-left: 18px;
+            margin: 8px 0;
+        }
+        
+        .tip-list li {
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .motivation-box {
+            background: var(--cream);
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .print-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Contact Information Styles */
+        .contact-info {
+            background: var(--light-blue);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .contact-channels {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
+        .contact-channel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        @media (min-width: 768px) {
+            .contact-channels {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                max-width: 95%;
+                border-radius: 12px;
+            }
+            
+            .card {
+                padding: 25px 20px;
+                margin: 15px;
+                border-radius: 10px;
+            }
+            
+            header {
+                padding: 25px;
+            }
+            
+            .academy-name {
+                font-size: 2.2rem;
+            }
+            
+            .academy-tagline {
+                font-size: 1.1rem;
+            }
+            
+            .exam-year {
+                font-size: 1rem;
+                padding: 8px 20px;
+            }
+            
+            .btn {
+                width: auto;
+                max-width: none;
+            }
+            
+            .navigation {
+                flex-direction: row;
+                gap: 0;
+            }
+            
+            .nav-buttons {
+                flex-direction: row;
+            }
+            
+            .nav-buttons .btn {
+                flex: none;
+            }
+            
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .question-header {
+                flex-direction: row;
+                align-items: center;
+                gap: 0;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+        }
+        
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1200px;
+            }
+            
+            .card {
+                padding: 30px;
+                margin: 20px;
+            }
+            
+            header {
+                padding: 30px;
+            }
+            
+            .academy-name {
+                font-size: 2.5rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Animation for question transitions */
+        .question-transition {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Celebration animation */
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .celebrate {
+            animation: celebrate 0.5s ease 3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="academy-name">
+                <i class="fas fa-graduation-cap"></i>
+                SIRKACADEMY
+            </div>
+            <div class="academy-tagline">JAMB UTME 2026 Examination Portal</div>
+            <div class="exam-year">LIVE DATABASE SYSTEM</div>
+        </header>
+
+        <!-- Welcome Screen -->
+        <div class="card" id="welcomeScreen">
+            <h2>Welcome to JAMB UTME Mock Examination</h2>
+            <p>This examination portal collects results from ALL students across ALL devices through our centralized database system.</p>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <h3><i class="fas fa-database"></i> Real Database</h3>
+                    <p>All results stored in cloud database</p>
+                </div>
+                <div class="result-card">
+                    <h3><i class="fas fa-chart-line"></i> Live Updates</h3>
+                    <p>See results from all devices instantly</p>
+                </div>
+                <div class="result-card">
+                    <h3><i class="fas fa-mobile-alt"></i> Any Device</h3>
+                    <p>Phone, tablet, or computer</p>
+                </div>
+                <div class="result-card">
+                    <h3><i class="fas fa-shield-alt"></i> Secure</h3>
+                    <p>One attempt per student</p>
+                </div>
+            </div>
+
+            <!-- Contact Information Section -->
+            <div class="contact-info">
+                <h3><i class="fas fa-address-book"></i> Contact Us</h3>
+                <div class="contact-channels">
+                    <div class="contact-channel">
+                        <i class="fab fa-whatsapp"></i>
+                        <a href="https://whatsapp.com/channel/0029Vb5GW6wLCoXAAIFZLx1G" target="_blank">WhatsApp Channel</a>
+                    </div>
+                    <div class="contact-channel">
+                        <i class="fab fa-telegram"></i>
+                        <a href="https://t.me/sirkacademyonlinetutorials" target="_blank">Telegram Channel</a>
+                    </div>
+                    <div class="contact-channel">
+                        <i class="fas fa-phone"></i>
+                        <span>07073892261, 07017506151</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <button class="btn" onclick="showScreen('registrationScreen')">Start Examination</button>
+                <button class="btn btn-success" onclick="showScreen('allResultsScreen')">View All Results</button>
+                <button class="btn btn-info" onclick="showScreen('resultCheckerScreen')">Check Your Results</button>
+                <button class="btn btn-warning" onclick="showScreen('adminLoginScreen')">Admin Login</button>
+            </div>
+        </div>
+
+        <!-- Registration Screen -->
+        <div class="card hidden" id="registrationScreen">
+            <h2>Student Registration</h2>
+            <p>Please provide your details to begin the examination. All fields are required.</p>
+            
+            <div id="registrationError" class="error hidden"></div>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="regNumber">Registration Number *</label>
+                    <input type="text" id="regNumber" required>
+                </div>
+                <button type="submit" class="btn" id="submitBtn">Start Examination</button>
+                <button type="button" class="btn btn-warning" onclick="showScreen('welcomeScreen')">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Exam Screen -->
+        <div class="card hidden" id="examScreen">
+            <div class="timer" id="timer">02:00:00</div>
+            
+            <!-- Subject Tabs -->
+            <div class="subject-tabs">
+                <div class="subject-tab active" data-subject="0">
+                    <i class="fas fa-font"></i> English
+                </div>
+                <div class="subject-tab" data-subject="1">
+                    <i class="fas fa-dna"></i> Biology
+                </div>
+                <div class="subject-tab" data-subject="2">
+                    <i class="fas fa-flask"></i> Chemistry
+                </div>
+                <div class="subject-tab" data-subject="3">
+                    <i class="fas fa-atom"></i> Physics
+                </div>
+            </div>
+            
+            <div class="question-container question-transition">
+                <div class="question-header">
+                    <h3 id="currentSubject">English Language</h3>
+                    <span id="questionProgress">Question 1 of 60</span>
+                </div>
+                
+                <div class="question-text" id="questionText">Question will appear here</div>
+                <div id="optionsContainer"></div>
+            </div>
+
+            <div class="navigation">
+                <div class="nav-buttons">
+                    <button class="btn" id="prevBtn" onclick="previousQuestion()">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button class="btn btn-secondary" onclick="flagQuestion()">
+                        <i class="fas fa-flag"></i> Flag Question
+                    </button>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="btn btn-danger" onclick="submitExam()">
+                    <i class="fas fa-paper-plane"></i> Submit Examination
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="card hidden" id="resultsScreen">
+            <h2>Examination Results</h2>
+            <div id="studentResults"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="showScreen('welcomeScreen')">Back to Home</button>
+                <button class="btn btn-success" onclick="showScreen('allResultsScreen')">View All Results</button>
+                <button class="btn btn-info" onclick="showScreen('resultCheckerScreen')">Detailed Analysis</button>
+            </div>
+        </div>
+
+        <!-- All Results Screen -->
+        <div class="card hidden" id="allResultsScreen">
+            <h2>All Examination Results</h2>
+            <div id="allResultsContainer">
+                <div class="loading">Loading results from database...</div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="showScreen('welcomeScreen')">Back to Home</button>
+            </div>
+        </div>
+
+        <!-- Result Checker Screen -->
+        <div class="card hidden" id="resultCheckerScreen">
+            <h2>Check Your Results</h2>
+            <p>Enter your registration number to view your detailed result analysis.</p>
+            
+            <div class="form-group">
+                <label for="resultRegNumber">Registration Number</label>
+                <input type="text" id="resultRegNumber" placeholder="Enter your registration number">
+            </div>
+            
+            <button class="btn" onclick="checkResult()">Check Result</button>
+            <button class="btn btn-warning" onclick="showScreen('welcomeScreen')">Back to Home</button>
+            
+            <div id="resultCheckerOutput" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Admin Login Screen -->
+        <div class="card hidden" id="adminLoginScreen">
+            <div class="admin-login">
+                <h2>Admin Login</h2>
+                <div id="adminError" class="error hidden"></div>
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="adminEmail">Email</label>
+                        <input type="email" id="adminEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                    <button type="button" class="btn btn-warning" onclick="showScreen('welcomeScreen')">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div class="card hidden" id="adminDashboard">
+            <h2>Admin Dashboard</h2>
+            
+            <div class="stats-grid" id="adminStats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalStudents">0</div>
+                    <div>Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalExams">0</div>
+                    <div>Exams Taken</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgScore">0%</div>
+                    <div>Average Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="topScore">0%</div>
+                    <div>Top Score</div>
+                </div>
+            </div>
+
+            <!-- Active Users Statistics -->
+            <h3 style="margin-top: 20px;">Active Users Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="activeToday">0</div>
+                    <div>Active Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeWeek">0</div>
+                    <div>Active This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeMonth">0</div>
+                    <div>Active This Month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeYear">0</div>
+                    <div>Active This Year</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="searchStudents" class="search-box" placeholder="Search students by name, email, or registration number...">
+            </div>
+
+            <div style="text-align: center; margin: 15px 0;">
+                <button class="btn btn-success" onclick="downloadAllResultsAsPDF()">
+                    <i class="fas fa-file-pdf"></i> Download All Results as PDF
+                </button>
+            </div>
+
+            <div id="adminResultsContainer">
+                <div class="loading">Loading admin data...</div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-danger" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div class="modal" id="editStudentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Student Result</h3>
+                <button class="close-modal" onclick="closeModal('editStudentModal')">&times;</button>
+            </div>
+            <div id="editStudentFormContainer"></div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Deletion</h3>
+                <button class="close-modal" onclick="closeModal('deleteConfirmModal')">&times;</button>
+            </div>
+            <p id="deleteConfirmText">Are you sure you want to delete this student's result? This action cannot be undone.</p>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn btn-warning" onclick="closeModal('deleteConfirmModal')">Cancel</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://ktpwcxrwptzrgyyadldj.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cHdjeHJ3cHR6cmd5eWFkbGRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzNzAyNjgsImV4cCI6MjA3Nzk0NjI2OH0.j7ZiEH6EgpZIA2OMTDvAvN_X3G_qlCdrUSjZrrFWeWM';
+        
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Exam Configuration
+        const examConfig = {
+            duration: 2 * 60 * 60, // 2 hours in seconds
+            subjects: [
+                { name: 'English Language', questions: 60, startIndex: 0, maxScore: 100 },
+                { name: 'Biology', questions: 40, startIndex: 60, maxScore: 100 },
+                { name: 'Chemistry', questions: 40, startIndex: 100, maxScore: 100 },
+                { name: 'Physics', questions: 40, startIndex: 140, maxScore: 100 }
+            ],
+            totalQuestions: 180,
+            totalMarks: 400
+        };
+
+        // COMPLETE JAMB QUESTIONS - ALL 180 QUESTIONS
+        const questions = [
+            // ENGLISH LANGUAGE (60 questions)
+            { id: 1, subject: 0, text: "Choose the word nearest in meaning to 'BENEVOLENT':", options: ["Kind", "Strict", "Cruel", "Indifferent"], answer: 0 },
+            { id: 2, subject: 0, text: "Which sentence is grammatically correct?", options: ["She don't like apples", "She doesn't like apples", "She didn't likes apples", "She not like apples"], answer: 1 },
+            { id: 3, subject: 0, text: "Identify the part of speech: 'He ran quickly'", options: ["Noun", "Verb", "Adverb", "Adjective"], answer: 2 },
+            { id: 4, subject: 0, text: "Choose the correctly spelled word:", options: ["Accomodate", "Acommodate", "Accommodate", "Acomodate"], answer: 2 },
+            { id: 5, subject: 0, text: "What is the antonym of 'ANCIENT'?", options: ["Modern", "Old", "Historic", "Traditional"], answer: 0 },
+            { id: 6, subject: 0, text: "Which is a complex sentence?", options: ["I like coffee", "I like coffee and tea", "Although I like coffee, I prefer tea", "Coffee, tea, milk"], answer: 2 },
+            { id: 7, subject: 0, text: "Choose the correct punctuation: 'Whats your name'", options: ["What's your name?", "Whats your name?", "What's your name", "Whats your name"], answer: 0 },
+            { id: 8, subject: 0, text: "Identify the figure of speech: 'The wind whispered through the trees'", options: ["Simile", "Metaphor", "Personification", "Hyperbole"], answer: 2 },
+            { id: 9, subject: 0, text: "Which word is a preposition?", options: ["Run", "Beautiful", "Under", "Quickly"], answer: 2 },
+            { id: 10, subject: 0, text: "Choose the correct form: 'Neither John nor his brothers ___ coming'", options: ["is", "are", "was", "has"], answer: 1 },
+            { id: 11, subject: 0, text: "What is the plural of 'child'?", options: ["Childs", "Children", "Childes", "Childrens"], answer: 1 },
+            { id: 12, subject: 0, text: "Identify the tense: 'I will have finished by tomorrow'", options: ["Future Perfect", "Future Continuous", "Simple Future", "Present Perfect"], answer: 0 },
+            { id: 13, subject: 0, text: "Choose the word that rhymes with 'LOVE':", options: ["Move", "Dove", "Wove", "Rove"], answer: 1 },
+            { id: 14, subject: 0, text: "Which is an abstract noun?", options: ["Table", "Happiness", "Book", "Water"], answer: 1 },
+            { id: 15, subject: 0, text: "Select the correct sentence:", options: ["Its a beautiful day", "It's a beautiful day", "Its' a beautiful day", "Its a beautiful day"], answer: 1 },
+            { id: 16, subject: 0, text: "What is the meaning of 'EPHEMERAL'?", options: ["Lasting a very short time", "Eternal", "Beautiful", "Difficult"], answer: 0 },
+            { id: 17, subject: 0, text: "Identify the direct object: 'She gave him the book'", options: ["She", "gave", "him", "book"], answer: 3 },
+            { id: 18, subject: 0, text: "Choose the appropriate conjunction: 'I want to go ___ I am too tired'", options: ["and", "but", "so", "because"], answer: 1 },
+            { id: 19, subject: 0, text: "What is the past participle of 'swim'?", options: ["Swam", "Swum", "Swimmed", "Swimming"], answer: 1 },
+            { id: 20, subject: 0, text: "Which is a synonym for 'MAGNIFICENT'?", options: ["Ordinary", "Splendid", "Small", "Ugly"], answer: 1 },
+            { id: 21, subject: 0, text: "Identify the type of clause: 'When I arrived, they were eating'", options: ["Noun clause", "Adjective clause", "Adverb clause", "Independent clause"], answer: 2 },
+            { id: 22, subject: 0, text: "Choose the correct question tag: 'She can swim, ___?'", options: ["can she", "can't she", "does she", "isn't it"], answer: 1 },
+            { id: 23, subject: 0, text: "What is the literary term for the main character in a story?", options: ["Antagonist", "Protagonist", "Narrator", "Author"], answer: 1 },
+            { id: 24, subject: 0, text: "Select the correctly punctuated sentence:", options: ["The man, who was tall, entered the room.", "The man who was tall entered the room.", "The man, who was tall entered the room.", "The man who was tall, entered the room."], answer: 0 },
+            { id: 25, subject: 0, text: "Which word is stressed on the second syllable?", options: ["PHOtograph", "phoTOGraphy", "photoGRAPHic", "PHOto"], answer: 1 },
+            { id: 26, subject: 0, text: "What is the meaning of 'AMBIVALENT'?", options: ["Having mixed feelings", "Very clear", "Happy", "Angry"], answer: 0 },
+            { id: 27, subject: 0, text: "Identify the voice: 'The cake was eaten by the children'", options: ["Active voice", "Passive voice", "Imperative voice", "Subjunctive voice"], answer: 1 },
+            { id: 28, subject: 0, text: "Choose the correct comparative form: 'This is the ___ of the two options'", options: ["good", "better", "best", "more good"], answer: 1 },
+            { id: 29, subject: 0, text: "Which is an example of onomatopoeia?", options: ["The sun smiled", "Buzz", "As brave as a lion", "The city never sleeps"], answer: 1 },
+            { id: 30, subject: 0, text: "Select the correct word: 'I ___ to the market yesterday'", options: ["go", "went", "gone", "going"], answer: 1 },
+            { id: 31, subject: 0, text: "What is the antonym of 'DILIGENT'?", options: ["Hardworking", "Lazy", "Intelligent", "Careful"], answer: 1 },
+            { id: 32, subject: 0, text: "Identify the type of phrase: 'Running quickly, he caught the bus'", options: ["Noun phrase", "Verb phrase", "Prepositional phrase", "Participial phrase"], answer: 3 },
+            { id: 33, subject: 0, text: "Choose the word that means 'to make worse':", options: ["Alleviate", "Ameliorate", "Exacerbate", "Mitigate"], answer: 2 },
+            { id: 34, subject: 0, text: "Which sentence is in the subjunctive mood?", options: ["I wish I were taller", "I am tall", "I was tall", "I will be tall"], answer: 0 },
+            { id: 35, subject: 0, text: "What is the plural of 'analysis'?", options: ["Analyses", "Analysises", "Analysises", "Analysis"], answer: 0 },
+            { id: 36, subject: 0, text: "Identify the literary device: 'The world is a stage'", options: ["Simile", "Metaphor", "Personification", "Alliteration"], answer: 1 },
+            { id: 37, subject: 0, text: "Choose the correct word: 'The ___ of the storm was devastating'", options: ["affect", "effect", "affection", "effective"], answer: 1 },
+            { id: 38, subject: 0, text: "Which is an example of a compound sentence?", options: ["I like coffee", "I like coffee and tea", "I like coffee, but I prefer tea", "Drinking coffee in the morning"], answer: 2 },
+            { id: 39, subject: 0, text: "What is the meaning of 'NOVEL' as an adjective?", options: ["Old", "Fictional", "New and original", "Boring"], answer: 2 },
+            { id: 40, subject: 0, text: "Identify the type of error: 'Between you and I, this is wrong'", options: ["Subject-verb agreement", "Pronoun case", "Verb tense", "Punctuation"], answer: 1 },
+            { id: 41, subject: 0, text: "Choose the correct form: 'If I ___ you, I would study harder'", options: ["am", "was", "were", "will be"], answer: 2 },
+            { id: 42, subject: 0, text: "What is the synonym of 'UBIQUITOUS'?", options: ["Rare", "Everywhere", "Nowhere", "Hidden"], answer: 1 },
+            { id: 43, subject: 0, text: "Identify the mood: 'Please close the door'", options: ["Indicative", "Imperative", "Subjunctive", "Interrogative"], answer: 1 },
+            { id: 44, subject: 0, text: "Choose the word that means 'to leave out':", options: ["Include", "Omit", "Insert", "Add"], answer: 1 },
+            { id: 45, subject: 0, text: "Which is the correct use of 'fewer'?", options: ["Fewer people", "Fewer water", "Fewer money", "Fewer time"], answer: 0 },
+            { id: 46, subject: 0, text: "What is the adjective form of 'child'?", options: ["Childly", "Childish", "Childful", "Childen"], answer: 1 },
+            { id: 47, subject: 0, text: "Identify the type of conjunction: 'I will call you when I arrive'", options: ["Coordinating", "Correlative", "Subordinating", "Conjunctive adverb"], answer: 2 },
+            { id: 48, subject: 0, text: "Choose the correct word: 'She is the ___ of the two sisters'", options: ["tall", "taller", "tallest", "more tall"], answer: 1 },
+            { id: 49, subject: 0, text: "What is the meaning of 'ENIGMA'?", options: ["A puzzle", "A solution", "A story", "A joke"], answer: 0 },
+            { id: 50, subject: 0, text: "Which sentence uses 'their' correctly?", options: ["Their going to the park", "There house is beautiful", "They're books are on the table", "Their car is red"], answer: 3 },
+            { id: 51, subject: 0, text: "Identify the figure of speech: 'She sells seashells by the seashore'", options: ["Simile", "Metaphor", "Alliteration", "Onomatopoeia"], answer: 2 },
+            { id: 52, subject: 0, text: "Choose the correct verb: 'The committee ___ divided in their opinions'", options: ["is", "are", "was", "were"], answer: 1 },
+            { id: 53, subject: 0, text: "What is the antonym of 'VIVACIOUS'?", options: ["Lively", "Energetic", "Dull", "Happy"], answer: 2 },
+            { id: 54, subject: 0, text: "Which is an example of hyperbole?", options: ["I'm so hungry I could eat a horse", "The wind whispered", "Her eyes were like stars", "Time is a thief"], answer: 0 },
+            { id: 55, subject: 0, text: "Select the correct word: 'I ___ there for three years'", options: ["have been", "has been", "am", "will be"], answer: 0 },
+            { id: 56, subject: 0, text: "What is the meaning of 'MUNDANE'?", options: ["Extraordinary", "Ordinary", "Magical", "Difficult"], answer: 1 },
+            { id: 57, subject: 0, text: "Identify the type of sentence: 'How beautiful the sunset is!'", options: ["Declarative", "Interrogative", "Imperative", "Exclamatory"], answer: 3 },
+            { id: 58, subject: 0, text: "Choose the correct preposition: 'She is good ___ mathematics'", options: ["at", "in", "on", "for"], answer: 0 },
+            { id: 59, subject: 0, text: "Which word means 'to make amends'?", options: ["Atone", "Offend", "Punish", "Ignore"], answer: 0 },
+            { id: 60, subject: 0, text: "What is the literary term for a play on words?", options: ["Pun", "Simile", "Metaphor", "Irony"], answer: 0 },
+
+            // BIOLOGY (40 questions)
+            { id: 61, subject: 1, text: "Which of these is NOT a characteristic of living things?", options: ["Respiration", "Reproduction", "Movement", "Photosynthesis"], answer: 3 },
+            { id: 62, subject: 1, text: "The basic unit of life is:", options: ["Cell", "Tissue", "Organ", "Molecule"], answer: 0 },
+            { id: 63, subject: 1, text: "Which organelle is responsible for protein synthesis?", options: ["Mitochondria", "Ribosome", "Nucleus", "Golgi apparatus"], answer: 1 },
+            { id: 64, subject: 1, text: "Photosynthesis occurs in which part of the plant cell?", options: ["Mitochondria", "Chloroplast", "Nucleus", "Vacuole"], answer: 1 },
+            { id: 65, subject: 1, text: "The process by which plants lose water is called:", options: ["Transpiration", "Respiration", "Photosynthesis", "Evaporation"], answer: 0 },
+            { id: 66, subject: 1, text: "Which blood cells are responsible for fighting infections?", options: ["Red blood cells", "White blood cells", "Platelets", "Plasma"], answer: 1 },
+            { id: 67, subject: 1, text: "The human heart has how many chambers?", options: ["2", "3", "4", "5"], answer: 2 },
+            { id: 68, subject: 1, text: "Which of these is a renewable resource?", options: ["Coal", "Natural gas", "Solar energy", "Petroleum"], answer: 2 },
+            { id: 69, subject: 1, text: "The study of heredity is called:", options: ["Ecology", "Genetics", "Evolution", "Taxonomy"], answer: 1 },
+            { id: 70, subject: 1, text: "DNA replication occurs during which phase of the cell cycle?", options: ["G1 phase", "S phase", "G2 phase", "M phase"], answer: 1 },
+            { id: 71, subject: 1, text: "Which of these is NOT a part of the nervous system?", options: ["Brain", "Spinal cord", "Nerves", "Heart"], answer: 3 },
+            { id: 72, subject: 1, text: "The process by which organisms maintain a stable internal environment is called:", options: ["Homeostasis", "Metabolism", "Respiration", "Digestion"], answer: 0 },
+            { id: 73, subject: 1, text: "Which vitamin is produced when the skin is exposed to sunlight?", options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"], answer: 3 },
+            { id: 74, subject: 1, text: "The smallest bone in the human body is located in the:", options: ["Hand", "Foot", "Ear", "Nose"], answer: 2 },
+            { id: 75, subject: 1, text: "Which of these is a decomposer?", options: ["Lion", "Eagle", "Fungi", "Grass"], answer: 2 },
+            { id: 76, subject: 1, text: "The process by which plants make their own food is called:", options: ["Respiration", "Photosynthesis", "Digestion", "Transpiration"], answer: 1 },
+            { id: 77, subject: 1, text: "Which gas do plants absorb during photosynthesis?", options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], answer: 2 },
+            { id: 78, subject: 1, text: "The male reproductive part of a flower is called:", options: ["Pistil", "Stamen", "Petal", "Sepal"], answer: 1 },
+            { id: 79, subject: 1, text: "Which of these is NOT a type of muscle tissue?", options: ["Skeletal", "Cardiac", "Smooth", "Nervous"], answer: 3 },
+            { id: 80, subject: 1, text: "The largest organ in the human body is the:", options: ["Liver", "Brain", "Skin", "Heart"], answer: 2 },
+            { id: 81, subject: 1, text: "Which blood type is known as the universal donor?", options: ["A", "B", "AB", "O"], answer: 3 },
+            { id: 82, subject: 1, text: "The process by which DNA is copied to RNA is called:", options: ["Replication", "Transcription", "Translation", "Mutation"], answer: 1 },
+            { id: 83, subject: 1, text: "Which of these is a function of the kidney?", options: ["Pumping blood", "Filtering waste", "Producing insulin", "Digesting food"], answer: 1 },
+            { id: 84, subject: 1, text: "The theory of evolution by natural selection was proposed by:", options: ["Gregor Mendel", "Charles Darwin", "Louis Pasteur", "Albert Einstein"], answer: 1 },
+            { id: 85, subject: 1, text: "Which of these is a vector-borne disease?", options: ["Diabetes", "Malaria", "Cancer", "Arthritis"], answer: 1 },
+            { id: 86, subject: 1, text: "The part of the brain responsible for balance and coordination is the:", options: ["Cerebrum", "Cerebellum", "Medulla", "Hypothalamus"], answer: 1 },
+            { id: 87, subject: 1, text: "Which of these is a greenhouse gas?", options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Helium"], answer: 2 },
+            { id: 88, subject: 1, text: "The process by which cells divide to form gametes is called:", options: ["Mitosis", "Meiosis", "Binary fission", "Budding"], answer: 1 },
+            { id: 89, subject: 1, text: "Which of these is NOT a function of the liver?", options: ["Detoxification", "Bile production", "Glycogen storage", "Oxygen transport"], answer: 3 },
+            { id: 90, subject: 1, text: "The basic unit of heredity is the:", options: ["Cell", "Chromosome", "Gene", "Protein"], answer: 2 },
+            { id: 91, subject: 1, text: "Which of these is an example of an invertebrate?", options: ["Fish", "Bird", "Insect", "Mammal"], answer: 2 },
+            { id: 92, subject: 1, text: "The process by which plants respond to light is called:", options: ["Geotropism", "Phototropism", "Hydrotropism", "Thigmotropism"], answer: 1 },
+            { id: 93, subject: 1, text: "Which hormone regulates blood sugar levels?", options: ["Insulin", "Adrenaline", "Thyroxine", "Estrogen"], answer: 0 },
+            { id: 94, subject: 1, text: "The symbiotic relationship where both organisms benefit is called:", options: ["Parasitism", "Commensalism", "Mutualism", "Predation"], answer: 2 },
+            { id: 95, subject: 1, text: "Which of these is a renewable resource?", options: ["Coal", "Natural gas", "Wind energy", "Petroleum"], answer: 2 },
+            { id: 96, subject: 1, text: "The process by which water moves from an area of high concentration to low concentration through a membrane is called:", options: ["Osmosis", "Diffusion", "Active transport", "Phagocytosis"], answer: 0 },
+            { id: 97, subject: 1, text: "Which of these is NOT a type of ecological pyramid?", options: ["Pyramid of numbers", "Pyramid of biomass", "Pyramid of energy", "Pyramid of species"], answer: 3 },
+            { id: 98, subject: 1, text: "The part of the eye that controls the amount of light entering is the:", options: ["Retina", "Cornea", "Pupil", "Lens"], answer: 2 },
+            { id: 99, subject: 1, text: "Which of these is a function of the skeletal system?", options: ["Transport of nutrients", "Support and protection", "Digestion of food", "Production of hormones"], answer: 1 },
+            { id: 100, subject: 1, text: "The process by which bacteria convert nitrogen gas into usable compounds is called:", options: ["Nitrogen fixation", "Denitrification", "Ammonification", "Nitrification"], answer: 0 },
+
+            // CHEMISTRY (40 questions)
+            { id: 101, subject: 2, text: "What is the atomic number of carbon?", options: ["6", "12", "14", "8"], answer: 0 },
+            { id: 102, subject: 2, text: "Which of these is a noble gas?", options: ["Oxygen", "Nitrogen", "Helium", "Chlorine"], answer: 2 },
+            { id: 103, subject: 2, text: "The pH of a neutral solution is:", options: ["0", "7", "14", "10"], answer: 1 },
+            { id: 104, subject: 2, text: "Which element has the chemical symbol 'Na'?", options: ["Nitrogen", "Sodium", "Nickel", "Neon"], answer: 1 },
+            { id: 105, subject: 2, text: "What is the chemical formula for water?", options: ["H2O", "CO2", "NaCl", "CH4"], answer: 0 },
+            { id: 106, subject: 2, text: "Which of these is a compound?", options: ["Oxygen", "Hydrogen", "Water", "Gold"], answer: 2 },
+            { id: 107, subject: 2, text: "The process of a solid changing directly to a gas is called:", options: ["Evaporation", "Sublimation", "Condensation", "Melting"], answer: 1 },
+            { id: 108, subject: 2, text: "Which subatomic particle has a negative charge?", options: ["Proton", "Neutron", "Electron", "Nucleus"], answer: 2 },
+            { id: 109, subject: 2, text: "What is the valency of oxygen?", options: ["1", "2", "3", "4"], answer: 1 },
+            { id: 110, subject: 2, text: "Which of these is an acid?", options: ["NaOH", "HCl", "NaCl", "NH3"], answer: 1 },
+            { id: 111, subject: 2, text: "The chemical reaction that releases heat is called:", options: ["Endothermic", "Exothermic", "Isothermic", "Adiabatic"], answer: 1 },
+            { id: 112, subject: 2, text: "Which gas is produced when metals react with acids?", options: ["Oxygen", "Carbon dioxide", "Hydrogen", "Nitrogen"], answer: 2 },
+            { id: 113, subject: 2, text: "What is the formula for calculating moles?", options: ["Mass × Molar mass", "Mass ÷ Molar mass", "Molar mass ÷ Mass", "Mass + Molar mass"], answer: 1 },
+            { id: 114, subject: 2, text: "Which of these is a greenhouse gas?", options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Helium"], answer: 2 },
+            { id: 115, subject: 2, text: "The process of separating petroleum into its components is called:", options: ["Distillation", "Filtration", "Evaporation", "Sublimation"], answer: 0 },
+            { id: 116, subject: 2, text: "Which element is the most abundant in the Earth's crust?", options: ["Oxygen", "Silicon", "Aluminum", "Iron"], answer: 0 },
+            { id: 117, subject: 2, text: "What is the chemical formula for table salt?", options: ["NaCl", "KCl", "CaCl2", "MgCl2"], answer: 0 },
+            { id: 118, subject: 2, text: "Which of these is a property of metals?", options: ["Brittle", "Poor conductors", "Malleable", "Dull"], answer: 2 },
+            { id: 119, subject: 2, text: "The pH of an acidic solution is:", options: ["Greater than 7", "Equal to 7", "Less than 7", "Equal to 14"], answer: 2 },
+            { id: 120, subject: 2, text: "Which gas is used in the Haber process?", options: ["Oxygen", "Hydrogen", "Nitrogen", "Carbon dioxide"], answer: 2 },
+            { id: 121, subject: 2, text: "What is the atomic mass of hydrogen?", options: ["1", "2", "3", "4"], answer: 0 },
+            { id: 122, subject: 2, text: "Which of these is an example of a chemical change?", options: ["Melting ice", "Boiling water", "Burning wood", "Breaking glass"], answer: 2 },
+            { id: 123, subject: 2, text: "The law of conservation of mass states that:", options: ["Mass can be created", "Mass can be destroyed", "Mass is neither created nor destroyed", "Mass decreases in reactions"], answer: 2 },
+            { id: 124, subject: 2, text: "Which subatomic particle is found in the nucleus?", options: ["Electron", "Proton", "Neutron", "Both proton and neutron"], answer: 3 },
+            { id: 125, subject: 2, text: "What is the formula for sulfuric acid?", options: ["H2SO4", "HCl", "HNO3", "H3PO4"], answer: 0 },
+            { id: 126, subject: 2, text: "Which of these is a halogen?", options: ["Sodium", "Potassium", "Chlorine", "Calcium"], answer: 2 },
+            { id: 127, subject: 2, text: "The process of rusting is an example of:", options: ["Combustion", "Oxidation", "Reduction", "Neutralization"], answer: 1 },
+            { id: 128, subject: 2, text: "Which gas turns limewater milky?", options: ["Oxygen", "Hydrogen", "Carbon dioxide", "Nitrogen"], answer: 2 },
+            { id: 129, subject: 2, text: "What is the chemical symbol for gold?", options: ["Go", "Gd", "Au", "Ag"], answer: 2 },
+            { id: 130, subject: 2, text: "Which of these is a strong base?", options: ["NaOH", "NH3", "H2O", "CH3COOH"], answer: 0 },
+            { id: 131, subject: 2, text: "The number of electrons in a neutral atom equals the number of:", options: ["Protons", "Neutrons", "Nucleons", "Isotopes"], answer: 0 },
+            { id: 132, subject: 2, text: "Which process is used to purify water?", options: ["Distillation", "Sublimation", "Evaporation", "Condensation"], answer: 0 },
+            { id: 133, subject: 2, text: "What is the formula for methane?", options: ["CH4", "C2H6", "C3H8", "C4H10"], answer: 0 },
+            { id: 134, subject: 2, text: "Which of these is a transition metal?", options: ["Sodium", "Calcium", "Iron", "Aluminum"], answer: 2 },
+            { id: 135, subject: 2, text: "The process of a liquid changing to a gas at the surface is called:", options: ["Boiling", "Evaporation", "Condensation", "Sublimation"], answer: 1 },
+            { id: 136, subject: 2, text: "Which gas is essential for respiration?", options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"], answer: 0 },
+            { id: 137, subject: 2, text: "What is the chemical formula for carbon dioxide?", options: ["CO", "CO2", "C2O", "C2O2"], answer: 1 },
+            { id: 138, subject: 2, text: "Which of these is an example of a mixture?", options: ["Water", "Salt", "Air", "Sugar"], answer: 2 },
+            { id: 139, subject: 2, text: "The process of gaining electrons is called:", options: ["Oxidation", "Reduction", "Neutralization", "Combustion"], answer: 1 },
+            { id: 140, subject: 2, text: "Which element has the highest electronegativity?", options: ["Fluorine", "Chlorine", "Oxygen", "Nitrogen"], answer: 0 },
+
+            // PHYSICS (40 questions)
+            { id: 141, subject: 3, text: "What is the SI unit of force?", options: ["Joule", "Newton", "Watt", "Pascal"], answer: 1 },
+            { id: 142, subject: 3, text: "Which of these is a vector quantity?", options: ["Mass", "Speed", "Distance", "Velocity"], answer: 3 },
+            { id: 143, subject: 3, text: "The rate of change of velocity is called:", options: ["Speed", "Acceleration", "Momentum", "Force"], answer: 1 },
+            { id: 144, subject: 3, text: "What is the value of acceleration due to gravity on Earth?", options: ["9.8 m/s²", "10 m/s²", "8.9 m/s²", "11 m/s²"], answer: 0 },
+            { id: 145, subject: 3, text: "Which law states that every action has an equal and opposite reaction?", options: ["Newton's First Law", "Newton's Second Law", "Newton's Third Law", "Law of Gravitation"], answer: 2 },
+            { id: 146, subject: 3, text: "What is the SI unit of energy?", options: ["Newton", "Joule", "Watt", "Volt"], answer: 1 },
+            { id: 147, subject: 3, text: "Which of these is a good conductor of electricity?", options: ["Rubber", "Plastic", "Copper", "Glass"], answer: 2 },
+            { id: 148, subject: 3, text: "The bending of light as it passes from one medium to another is called:", options: ["Reflection", "Refraction", "Diffraction", "Dispersion"], answer: 1 },
+            { id: 149, subject: 3, text: "What is the unit of electric current?", options: ["Volt", "Ampere", "Ohm", "Watt"], answer: 1 },
+            { id: 150, subject: 3, text: "Which color of light has the longest wavelength?", options: ["Violet", "Blue", "Green", "Red"], answer: 3 },
+            { id: 151, subject: 3, text: "The energy stored in a stretched spring is called:", options: ["Kinetic energy", "Potential energy", "Thermal energy", "Chemical energy"], answer: 1 },
+            { id: 152, subject: 3, text: "What is the speed of light in vacuum?", options: ["3 × 10^6 m/s", "3 × 10^8 m/s", "3 × 10^10 m/s", "3 × 10^12 m/s"], answer: 1 },
+            { id: 153, subject: 3, text: "Which of these is NOT a type of radiation?", options: ["Alpha", "Beta", "Gamma", "Delta"], answer: 3 },
+            { id: 154, subject: 3, text: "The SI unit of power is:", options: ["Joule", "Watt", "Newton", "Pascal"], answer: 1 },
+            { id: 155, subject: 3, text: "What is the formula for density?", options: ["Mass × Volume", "Mass ÷ Volume", "Volume ÷ Mass", "Weight × Volume"], answer: 1 },
+            { id: 156, subject: 3, text: "Which law states that pressure and volume are inversely proportional at constant temperature?", options: ["Boyle's Law", "Charles's Law", "Gay-Lussac's Law", "Avogadro's Law"], answer: 0 },
+            { id: 157, subject: 3, text: "What is the unit of resistance?", options: ["Volt", "Ampere", "Ohm", "Watt"], answer: 2 },
+            { id: 158, subject: 3, text: "Which of these is a renewable source of energy?", options: ["Coal", "Natural gas", "Solar energy", "Petroleum"], answer: 2 },
+            { id: 159, subject: 3, text: "The process by which a liquid changes to a gas at its boiling point is called:", options: ["Evaporation", "Boiling", "Condensation", "Sublimation"], answer: 1 },
+            { id: 160, subject: 3, text: "What is the principle behind the working of a hydraulic press?", options: ["Archimedes' principle", "Pascal's principle", "Bernoulli's principle", "Newton's principle"], answer: 1 },
+            { id: 161, subject: 3, text: "Which type of mirror can form both real and virtual images?", options: ["Plane mirror", "Concave mirror", "Convex mirror", "All of these"], answer: 1 },
+            { id: 162, subject: 3, text: "The SI unit of frequency is:", options: ["Hertz", "Decibel", "Watt", "Newton"], answer: 0 },
+            { id: 163, subject: 3, text: "What is the formula for work done?", options: ["Force × Distance", "Force ÷ Distance", "Mass × Acceleration", "Mass × Velocity"], answer: 0 },
+            { id: 164, subject: 3, text: "Which of these is an example of a lever?", options: ["Knife", "Screw", "See-saw", "Inclined plane"], answer: 2 },
+            { id: 165, subject: 3, text: "The amount of matter in an object is called:", options: ["Weight", "Mass", "Volume", "Density"], answer: 1 },
+            { id: 166, subject: 3, text: "What is the unit of electric charge?", options: ["Volt", "Ampere", "Coulomb", "Ohm"], answer: 2 },
+            { id: 167, subject: 3, text: "Which law states that the volume of a gas is directly proportional to its temperature at constant pressure?", options: ["Boyle's Law", "Charles's Law", "Gay-Lussac's Law", "Avogadro's Law"], answer: 1 },
+            { id: 168, subject: 3, text: "The resistance of a conductor depends on:", options: ["Length", "Cross-sectional area", "Material", "All of these"], answer: 3 },
+            { id: 169, subject: 3, text: "What is the principle of conservation of energy?", options: ["Energy can be created", "Energy can be destroyed", "Energy cannot be created or destroyed", "Energy decreases over time"], answer: 2 },
+            { id: 170, subject: 3, text: "Which type of lens is used to correct short-sightedness?", options: ["Convex lens", "Concave lens", "Cylindrical lens", "Bifocal lens"], answer: 1 },
+            { id: 171, subject: 3, text: "The SI unit of pressure is:", options: ["Newton", "Pascal", "Joule", "Watt"], answer: 1 },
+            { id: 172, subject: 3, text: "What is the formula for calculating speed?", options: ["Distance × Time", "Distance ÷ Time", "Time ÷ Distance", "Acceleration × Time"], answer: 1 },
+            { id: 173, subject: 3, text: "Which of these is a scalar quantity?", options: ["Force", "Velocity", "Displacement", "Speed"], answer: 3 },
+            { id: 174, subject: 3, text: "The phenomenon by which a sound wave bends around obstacles is called:", options: ["Reflection", "Refraction", "Diffraction", "Interference"], answer: 2 },
+            { id: 175, subject: 3, text: "What is the unit of capacitance?", options: ["Ohm", "Farad", "Henry", "Tesla"], answer: 1 },
+            { id: 176, subject: 3, text: "Which of these is an example of nuclear energy?", options: ["Battery", "Solar cell", "Nuclear reactor", "Electric generator"], answer: 2 },
+            { id: 177, subject: 3, text: "The force that opposes motion between two surfaces in contact is called:", options: ["Gravity", "Friction", "Tension", "Elasticity"], answer: 1 },
+            { id: 178, subject: 3, text: "What is the formula for Ohm's Law?", options: ["V = I/R", "V = I × R", "I = V × R", "R = V × I"], answer: 1 },
+            { id: 179, subject: 3, text: "Which type of energy is stored in a battery?", options: ["Kinetic energy", "Potential energy", "Chemical energy", "Nuclear energy"], answer: 2 },
+            { id: 180, subject: 3, text: "The SI unit of magnetic flux is:", options: ["Tesla", "Weber", "Henry", "Farad"], answer: 1 }
+        ];
+
+        // Global variables
+        let currentStudent = null;
+        let currentQuestionIndex = 0;
+        let studentAnswers = Array(examConfig.totalQuestions).fill(null);
+        let flaggedQuestions = new Set();
+        let timerInterval = null;
+        let timeRemaining = examConfig.duration;
+
+        // DOM Elements
+        const screens = {
+            welcome: document.getElementById('welcomeScreen'),
+            registration: document.getElementById('registrationScreen'),
+            exam: document.getElementById('examScreen'),
+            results: document.getElementById('resultsScreen'),
+            allResults: document.getElementById('allResultsScreen'),
+            resultChecker: document.getElementById('resultCheckerScreen'),
+            adminLogin: document.getElementById('adminLoginScreen'),
+            adminDashboard: document.getElementById('adminDashboard')
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            document.getElementById('registrationForm').addEventListener('submit', handleRegistration);
+            document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
+            
+            // Initialize subject tabs
+            document.querySelectorAll('.subject-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const subjectIndex = parseInt(this.getAttribute('data-subject'));
+                    switchSubject(subjectIndex);
+                });
+            });
+            
+            // Check if student is already registered
+            const savedStudent = localStorage.getItem('currentStudent');
+            if (savedStudent) {
+                currentStudent = JSON.parse(savedStudent);
+                showScreen('examScreen');
+                startExam();
+            }
+            
+            // Load all results if on results screen
+            if (window.location.hash === '#results') {
+                showScreen('allResultsScreen');
+                loadAllResults();
+            }
+        });
+
+        // Screen navigation
+        function showScreen(screenId) {
+            // Hide all screens
+            Object.values(screens).forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            
+            // Show the requested screen
+            document.getElementById(screenId).classList.remove('hidden');
+            
+            // Perform screen-specific initializations
+            switch(screenId) {
+                case 'allResultsScreen':
+                    loadAllResults();
+                    break;
+                case 'adminDashboard':
+                    loadAdminDashboard();
+                    break;
+                case 'resultCheckerScreen':
+                    document.getElementById('resultCheckerOutput').innerHTML = '';
+                    break;
+            }
+        }
+
+        // Student registration
+        async function handleRegistration(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('registrationError');
+            
+            // Get form data
+            const studentData = {
+                full_name: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                registration_number: document.getElementById('regNumber').value.trim(),
+                created_at: new Date().toISOString()
+            };
+            
+            // Validate form
+            if (!studentData.full_name || !studentData.email || !studentData.phone || !studentData.registration_number) {
+                errorDiv.textContent = 'All fields are required.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(studentData.email)) {
+                errorDiv.textContent = 'Please enter a valid email address.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Check if registration number already exists
+            try {
+                const { data: existingStudent, error } = await supabase
+                    .from('students')
+                    .select('*')
+                    .eq('registration_number', studentData.registration_number)
+                    .single();
+                
+                if (existingStudent) {
+                    errorDiv.textContent = 'This registration number has already been used. Each student can only take the exam once.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+            } catch (error) {
+                // No existing student found, which is good
+            }
+            
+            // Disable submit button to prevent double submission
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+            
+            try {
+                // Insert student into database
+                const { data, error } = await supabase
+                    .from('students')
+                    .insert([studentData])
+                    .select();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // Save student data locally
+                currentStudent = data[0];
+                localStorage.setItem('currentStudent', JSON.stringify(currentStudent));
+                
+                // Show exam screen
+                showScreen('examScreen');
+                startExam();
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                errorDiv.textContent = 'Registration failed. Please try again. Error: ' + error.message;
+                errorDiv.classList.remove('hidden');
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Start Examination';
+            }
+        }
+
+        // Start the exam
+        function startExam() {
+            // Reset exam state
+            currentQuestionIndex = 0;
+            studentAnswers = Array(examConfig.totalQuestions).fill(null);
+            flaggedQuestions = new Set();
+            timeRemaining = examConfig.duration;
+            
+            // Start timer
+            startTimer();
+            
+            // Load first question
+            loadQuestion(currentQuestionIndex);
+            
+            // Initialize subject tabs
+            switchSubject(0);
+        }
+
+        // Timer functions
+        function startTimer() {
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeRemaining / 3600);
+            const minutes = Math.floor((timeRemaining % 3600) / 60);
+            const seconds = timeRemaining % 60;
+            
+            document.getElementById('timer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running low
+            if (timeRemaining < 300) { // 5 minutes
+                document.getElementById('timer').style.background = 'var(--danger)';
+            } else if (timeRemaining < 600) { // 10 minutes
+                document.getElementById('timer').style.background = 'var(--warning)';
+                document.getElementById('timer').style.color = 'var(--dark)';
+            }
+        }
+
+        // Question navigation
+        function loadQuestion(index) {
+            if (index < 0 || index >= examConfig.totalQuestions) return;
+            
+            currentQuestionIndex = index;
+            const question = questions[index];
+            
+            // Update question text
+            document.getElementById('questionText').textContent = question.text;
+            
+            // Update progress
+            document.getElementById('questionProgress').textContent = 
+                `Question ${index + 1} of ${examConfig.totalQuestions}`;
+            
+            // Update options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, optionIndex) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (studentAnswers[index] === optionIndex) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.innerHTML = `
+                    <div class="option-letter">${String.fromCharCode(65 + optionIndex)}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                optionElement.addEventListener('click', () => selectOption(optionIndex));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === examConfig.totalQuestions - 1;
+            
+            // Update flagged status
+            const flagBtn = document.querySelector('.btn-secondary');
+            if (flaggedQuestions.has(index)) {
+                flagBtn.innerHTML = '<i class="fas fa-flag"></i> Unflag Question';
+            } else {
+                flagBtn.innerHTML = '<i class="fas fa-flag"></i> Flag Question';
+            }
+            
+            // Add transition effect
+            const container = document.querySelector('.question-container');
+            container.classList.remove('question-transition');
+            void container.offsetWidth; // Trigger reflow
+            container.classList.add('question-transition');
+        }
+
+        function selectOption(optionIndex) {
+            studentAnswers[currentQuestionIndex] = optionIndex;
+            loadQuestion(currentQuestionIndex); // Reload to update UI
+        }
+
+        function flagQuestion() {
+            if (flaggedQuestions.has(currentQuestionIndex)) {
+                flaggedQuestions.delete(currentQuestionIndex);
+            } else {
+                flaggedQuestions.add(currentQuestionIndex);
+            }
+            loadQuestion(currentQuestionIndex); // Reload to update UI
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < examConfig.totalQuestions - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function switchSubject(subjectIndex) {
+            // Update active tab
+            document.querySelectorAll('.subject-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.subject-tab[data-subject="${subjectIndex}"]`).classList.add('active');
+            
+            // Update subject name
+            document.getElementById('currentSubject').textContent = examConfig.subjects[subjectIndex].name;
+            
+            // Find first question of this subject
+            const firstQuestionIndex = examConfig.subjects[subjectIndex].startIndex;
+            loadQuestion(firstQuestionIndex);
+        }
+
+        // Submit exam and calculate results
+        async function submitExam() {
+            clearInterval(timerInterval);
+            
+            // Calculate scores
+            const scores = calculateScores();
+            const totalScore = scores.reduce((sum, score) => sum + score, 0);
+            const percentage = Math.round((totalScore / examConfig.totalMarks) * 100);
+            
+            // Prepare result data
+            const resultData = {
+                student_id: currentStudent.id,
+                english_score: scores[0],
+                biology_score: scores[1],
+                chemistry_score: scores[2],
+                physics_score: scores[2],
+                total_score: totalScore,
+                percentage: percentage,
+                answers: studentAnswers,
+                time_taken: examConfig.duration - timeRemaining,
+                submitted_at: new Date().toISOString()
+            };
+            
+            try {
+                // Save result to database
+                const { data, error } = await supabase
+                    .from('exam_results')
+                    .insert([resultData])
+                    .select();
+                
+                if (error) throw error;
+                
+                // Display results
+                displayResults(scores, totalScore, percentage);
+                showScreen('resultsScreen');
+                
+                // Clear local storage
+                localStorage.removeItem('currentStudent');
+                
+            } catch (error) {
+                console.error('Error saving results:', error);
+                alert('Error submitting exam. Please try again.');
+            }
+        }
+
+        function calculateScores() {
+            const scores = [0, 0, 0, 0]; // English, Biology, Chemistry, Physics
+            
+            questions.forEach((question, index) => {
+                if (studentAnswers[index] === question.answer) {
+                    // Calculate score based on subject
+                    const subjectIndex = question.subject;
+                    // Each correct answer contributes to the subject score
+                    // Maximum score per subject is 100
+                    scores[subjectIndex] += Math.round(100 / examConfig.subjects[subjectIndex].questions);
+                }
+            });
+            
+            return scores;
+        }
+
+        function displayResults(scores, totalScore, percentage) {
+            const resultsContainer = document.getElementById('studentResults');
+            
+            // Performance level
+            let performanceLevel = '';
+            let performanceColor = '';
+            
+            if (percentage >= 80) {
+                performanceLevel = 'Excellent';
+                performanceColor = 'var(--success)';
+            } else if (percentage >= 70) {
+                performanceLevel = 'Very Good';
+                performanceColor = 'var(--info)';
+            } else if (percentage >= 60) {
+                performanceLevel = 'Good';
+                performanceColor = 'var(--accent)';
+            } else if (percentage >= 50) {
+                performanceLevel = 'Average';
+                performanceColor = 'var(--warning)';
+            } else {
+                performanceLevel = 'Needs Improvement';
+                performanceColor = 'var(--danger)';
+            }
+            
+            resultsContainer.innerHTML = `
+                <div class="performance-summary">
+                    <h3>Examination Complete!</h3>
+                    <div class="performance-level" style="color: ${performanceColor}">${performanceLevel}</div>
+                    <div style="font-size: 2.5rem; font-weight: bold; margin: 10px 0;">${percentage}%</div>
+                    <div>Total Score: ${totalScore} / ${examConfig.totalMarks}</div>
+                </div>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3><i class="fas fa-font"></i> English</h3>
+                        <div class="stat-number">${scores[0]}%</div>
+                    </div>
+                    <div class="result-card">
+                        <h3><i class="fas fa-dna"></i> Biology</h3>
+                        <div class="stat-number">${scores[1]}%</div>
+                    </div>
+                    <div class="result-card">
+                        <h3><i class="fas fa-flask"></i> Chemistry</h3>
+                        <div class="stat-number">${scores[2]}%</div>
+                    </div>
+                    <div class="result-card">
+                        <h3><i class="fas fa-atom"></i> Physics</h3>
+                        <div class="stat-number">${scores[3]}%</div>
+                    </div>
+                </div>
+                
+                <div class="motivation-box">
+                    <h3><i class="fas fa-lightbulb"></i> Performance Insight</h3>
+                    <p>${getPerformanceInsight(percentage)}</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-info" onclick="showScreen('resultCheckerScreen')">
+                        <i class="fas fa-chart-bar"></i> Detailed Analysis
+                    </button>
+                </div>
+            `;
+            
+            // Add celebration effect for high scores
+            if (percentage >= 80) {
+                resultsContainer.classList.add('celebrate');
+            }
+        }
+
+        function getPerformanceInsight(percentage) {
+            if (percentage >= 80) {
+                return "Outstanding performance! You have demonstrated excellent understanding of all subjects. Keep up the great work!";
+            } else if (percentage >= 70) {
+                return "Very good performance! You have a strong grasp of the material with some areas for improvement.";
+            } else if (percentage >= 60) {
+                return "Good performance! You understand the core concepts well but need to focus on some specific areas.";
+            } else if (percentage >= 50) {
+                return "Average performance. You have basic understanding but need more practice to improve your scores.";
+            } else {
+                return "You need to focus more on your studies. Identify your weak areas and practice regularly to improve.";
+            }
+        }
+
+        // Load all results from database
+        async function loadAllResults() {
+            const container = document.getElementById('allResultsContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading results from database...</div>';
+            
+            try {
+                // Get all students with their results
+                const { data: results, error } = await supabase
+                    .from('exam_results')
+                    .select(`
+                        *,
+                        students (
+                            full_name,
+                            registration_number
+                        )
+                    `)
+                    .order('total_score', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (!results || results.length === 0) {
+                    container.innerHTML = '<div class="error">No examination results found in the database.</div>';
+                    return;
+                }
+                
+                // Calculate ranks
+                results.forEach((result, index) => {
+                    result.rank = index + 1;
+                });
+                
+                // Display results in a table
+                let tableHTML = `
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>Reg No</th>
+                                    <th>English</th>
+                                    <th>Biology</th>
+                                    <th>Chemistry</th>
+                                    <th>Physics</th>
+                                    <th>Total</th>
+                                    <th>Percentage</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                results.forEach(result => {
+                    const date = new Date(result.submitted_at).toLocaleDateString();
+                    tableHTML += `
+                        <tr>
+                            <td>${result.rank}</td>
+                            <td>${result.students.full_name}</td>
+                            <td>${result.students.registration_number}</td>
+                            <td>${result.english_score}</td>
+                            <td>${result.biology_score}</td>
+                            <td>${result.chemistry_score}</td>
+                            <td>${result.physics_score}</td>
+                            <td>${result.total_score}</td>
+                            <td>${result.percentage}%</td>
+                            <td>${date}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="btn btn-success" onclick="downloadResultsAsPDF()">
+                            <i class="fas fa-file-pdf"></i> Download Results as PDF
+                        </button>
+                    </div>
+                `;
+                
+                container.innerHTML = tableHTML;
+                
+            } catch (error) {
+                console.error('Error loading results:', error);
+                container.innerHTML = '<div class="error">Error loading results: ' + error.message + '</div>';
+            }
+        }
+
+        // FIXED: Result Checker Function
+        async function getStudentResult(registrationNumber) {
+            try {
+                // First get the student
+                const { data: student, error: studentError } = await supabase
+                    .from('students')
+                    .select('*')
+                    .eq('registration_number', registrationNumber)
+                    .single();
+
+                if (studentError || !student) {
+                    console.error('Student not found:', studentError);
+                    return null;
+                }
+
+                // Then get their exam results
+                const { data: examResult, error: resultError } = await supabase
+                    .from('exam_results')
+                    .select('*')
+                    .eq('student_id', student.id)
+                    .single();
+
+                if (resultError || !examResult) {
+                    console.error('Exam result not found:', resultError);
+                    return null;
+                }
+
+                // Combine the data
+                return {
+                    ...student,
+                    exam_results: [examResult]
+                };
+                
+            } catch (error) {
+                console.error('Error in getStudentResult:', error);
+                return null;
+            }
+        }
+
+        // FIXED: Check Result Function
+        async function checkResult() {
+            const regNumber = document.getElementById('resultRegNumber').value.trim();
+            const output = document.getElementById('resultCheckerOutput');
+            
+            if (!regNumber) {
+                output.innerHTML = '<div class="error"><i class="fas fa-exclamation-circle"></i> Please enter your registration number</div>';
+                return;
+            }
+            
+            output.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Searching for your results...</div>';
+            
+            try {
+                const studentData = await getStudentResult(regNumber);
+                
+                if (!studentData) {
+                    output.innerHTML = '<div class="error"><i class="fas fa-times-circle"></i> No results found for registration number: <strong>' + regNumber + '</strong>. Please check and try again.</div>';
+                    return;
+                }
+                
+                if (!studentData.exam_results || studentData.exam_results.length === 0) {
+                    output.innerHTML = '<div class="error"><i class="fas fa-times-circle"></i> No examination results found for this registration number.</div>';
+                    return;
+                }
+                
+                const result = studentData.exam_results[0];
+                displayResultAnalysis(studentData, result);
+                
+            } catch (error) {
+                console.error('Error in checkResult:', error);
+                output.innerHTML = '<div class="error"><i class="fas fa-exclamation-triangle"></i> Error fetching results: ' + error.message + '. Please try again.</div>';
+            }
+        }
+
+        function displayResultAnalysis(student, result) {
+            const output = document.getElementById('resultCheckerOutput');
+            
+            // Calculate subject performance
+            const subjects = [
+                { name: 'English Language', score: result.english_score, max: 100 },
+                { name: 'Biology', score: result.biology_score, max: 100 },
+                { name: 'Chemistry', score: result.chemistry_score, max: 100 },
+                { name: 'Physics', score: result.physics_score, max: 100 }
+            ];
+            
+            // Identify strengths and weaknesses
+            const strengths = subjects.filter(subj => subj.score >= 70);
+            const weaknesses = subjects.filter(subj => subj.score < 50);
+            const averageSubjects = subjects.filter(subj => subj.score >= 50 && subj.score < 70);
+            
+            // Performance level
+            let performanceLevel = '';
+            if (result.percentage >= 80) performanceLevel = 'Excellent';
+            else if (result.percentage >= 70) performanceLevel = 'Very Good';
+            else if (result.percentage >= 60) performanceLevel = 'Good';
+            else if (result.percentage >= 50) performanceLevel = 'Average';
+            else performanceLevel = 'Needs Improvement';
+            
+            let analysisHTML = `
+                <div class="performance-summary">
+                    <h3><i class="fas fa-user-graduate"></i> Result Analysis for ${student.full_name}</h3>
+                    <div class="performance-level">${performanceLevel}</div>
+                    <div style="font-size: 2rem; font-weight: bold; margin: 10px 0;">${result.percentage}%</div>
+                    <div>Registration Number: <strong>${student.registration_number}</strong></div>
+                </div>
+                
+                <div class="result-analysis">
+                    <div class="analysis-section">
+                        <h3 class="section-title"><i class="fas fa-chart-bar"></i> Subject Performance</h3>
+                        <div class="results-grid">
+            `;
+            
+            // Add subject performance cards
+            subjects.forEach(subject => {
+                let cardClass = 'subject-card';
+                if (subject.score >= 70) cardClass += ' strength-card';
+                else if (subject.score < 50) cardClass += ' weakness-card';
+                else cardClass += ' good-card';
+                
+                analysisHTML += `
+                    <div class="${cardClass}">
+                        <h4>${subject.name}</h4>
+                        <div class="stat-number">${subject.score}%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${subject.score}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            analysisHTML += `
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h3 class="section-title"><i class="fas fa-trophy"></i> Strengths</h3>
+            `;
+            
+            if (strengths.length > 0) {
+                strengths.forEach(subject => {
+                    analysisHTML += `<div class="subject-card strength-card">${subject.name}: ${subject.score}%</div>`;
+                });
+            } else {
+                analysisHTML += `<p>No subjects with excellent performance. Focus on improving all areas.</p>`;
+            }
+            
+            analysisHTML += `
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h3 class="section-title"><i class="fas fa-exclamation-triangle"></i> Areas Needing Improvement</h3>
+            `;
+            
+            if (weaknesses.length > 0) {
+                weaknesses.forEach(subject => {
+                    analysisHTML += `<div class="subject-card weakness-card">${subject.name}: ${subject.score}%</div>`;
+                });
+            } else {
+                analysisHTML += `<p>Good job! You don't have any critically weak subjects.</p>`;
+            }
+            
+            analysisHTML += `
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h3 class="section-title"><i class="fas fa-lightbulb"></i> Study Recommendations</h3>
+                        <ul class="tip-list">
+            `;
+            
+            // Generate study recommendations based on performance
+            if (weaknesses.length > 0) {
+                analysisHTML += `<li>Focus more on your weaker subjects: ${weaknesses.map(s => s.name).join(', ')}</li>`;
+                analysisHTML += `<li>Allocate more study time to these subjects and practice with past questions</li>`;
+            }
+            
+            if (averageSubjects.length > 0) {
+                analysisHTML += `<li>Maintain consistent practice in ${averageSubjects.map(s => s.name).join(', ')} to reach excellent level</li>`;
+            }
+            
+            if (strengths.length > 0) {
+                analysisHTML += `<li>Keep up the good work in ${strengths.map(s => s.name).join(', ')} - these are your strong areas</li>`;
+            }
+            
+            analysisHTML += `
+                            <li>Practice time management during exams</li>
+                            <li>Review incorrect answers to understand your mistakes</li>
+                            <li>Take regular mock tests to track your progress</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="motivation-box">
+                        <h3><i class="fas fa-star"></i> Final Recommendation</h3>
+                        <p>${getFinalRecommendation(result.percentage)}</p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn print-btn" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Result
+                    </button>
+                </div>
+            `;
+            
+            output.innerHTML = analysisHTML;
+        }
+
+        function getFinalRecommendation(percentage) {
+            if (percentage >= 80) {
+                return "Excellent performance! You're well prepared for the actual JAMB examination. Continue with your current study pattern and focus on maintaining this high standard.";
+            } else if (percentage >= 70) {
+                return "Very good performance! You have a strong foundation. Focus on your weaker areas to reach excellence level.";
+            } else if (percentage >= 60) {
+                return "Good performance. You're on the right track but need more consistent practice, especially in your weaker subjects.";
+            } else if (percentage >= 50) {
+                return "Average performance. You need to intensify your studies, particularly in subjects where you scored below average.";
+            } else {
+                return "You need to significantly improve your preparation. Consider getting a tutor or joining a study group to help with difficult topics.";
+            }
+        }
+
+        // Admin functions
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('adminError');
+            
+            // Simple admin authentication (in a real app, this would be more secure)
+            if (email === 'admin@sirkacademy.com' && password === 'JAMB2026') {
+                showScreen('adminDashboard');
+            } else {
+                errorDiv.textContent = 'Invalid admin credentials.';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        async function loadAdminDashboard() {
+            // Load stats
+            await loadAdminStats();
+            
+            // Load all results for admin
+            await loadAdminResults();
+            
+            // Load active users statistics
+            await loadActiveUsersStats();
+        }
+
+        async function loadAdminStats() {
+            try {
+                // Get total students
+                const { data: students, error: studentsError } = await supabase
+                    .from('students')
+                    .select('*');
+                
+                if (studentsError) throw studentsError;
+                
+                // Get total exam results
+                const { data: results, error: resultsError } = await supabase
+                    .from('exam_results')
+                    .select('*');
+                
+                if (resultsError) throw resultsError;
+                
+                // Calculate average score
+                const avgScore = results.length > 0 ? 
+                    Math.round(results.reduce((sum, result) => sum + result.percentage, 0) / results.length) : 0;
+                
+                // Calculate top score
+                const topScore = results.length > 0 ? 
+                    Math.max(...results.map(result => result.percentage)) : 0;
+                
+                // Update stats
+                document.getElementById('totalStudents').textContent = students?.length || 0;
+                document.getElementById('totalExams').textContent = results?.length || 0;
+                document.getElementById('avgScore').textContent = avgScore + '%';
+                document.getElementById('topScore').textContent = topScore + '%';
+                
+            } catch (error) {
+                console.error('Error loading admin stats:', error);
+            }
+        }
+
+        // Active Users Statistics Function
+        async function loadActiveUsersStats() {
+            try {
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+                const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).toISOString();
+                const yearStart = new Date(now.getFullYear(), 0, 1).toISOString();
+                
+                const { count: todayCount } = await supabase
+                    .from('students')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', today);
+                
+                const { count: weekCount } = await supabase
+                    .from('students')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', weekAgo);
+                
+                const { count: monthCount } = await supabase
+                    .from('students')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', monthAgo);
+                
+                const { count: yearCount } = await supabase
+                    .from('students')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', yearStart);
+                
+                document.getElementById('activeToday').textContent = todayCount || 0;
+                document.getElementById('activeWeek').textContent = weekCount || 0;
+                document.getElementById('activeMonth').textContent = monthCount || 0;
+                document.getElementById('activeYear').textContent = yearCount || 0;
+            } catch (error) {
+                console.error('Error loading active users:', error);
+            }
+        }
+
+        async function loadAdminResults() {
+            const container = document.getElementById('adminResultsContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading admin data...</div>';
+            
+            try {
+                // Get all students with their results
+                const { data: results, error } = await supabase
+                    .from('exam_results')
+                    .select(`
+                        *,
+                        students (
+                            id,
+                            full_name,
+                            email,
+                            phone,
+                            registration_number
+                        )
+                    `)
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (!results || results.length === 0) {
+                    container.innerHTML = '<div class="error">No examination results found.</div>';
+                    return;
+                }
+                
+                let tableHTML = `
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Reg No</th>
+                                    <th>English</th>
+                                    <th>Biology</th>
+                                    <th>Chemistry</th>
+                                    <th>Physics</th>
+                                    <th>Total</th>
+                                    <th>Percentage</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                results.forEach((result, index) => {
+                    const date = new Date(result.submitted_at).toLocaleDateString();
+                    tableHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${result.students.full_name}</td>
+                            <td>${result.students.email}</td>
+                            <td>${result.students.registration_number}</td>
+                            <td>${result.english_score}</td>
+                            <td>${result.biology_score}</td>
+                            <td>${result.chemistry_score}</td>
+                            <td>${result.physics_score}</td>
+                            <td>${result.total_score}</td>
+                            <td>${result.percentage}%</td>
+                            <td>${date}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-info" onclick="editStudentResult(${result.id})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="confirmDeleteResult(${result.id}, '${result.students.full_name}')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                container.innerHTML = tableHTML;
+                
+                // Add search functionality
+                const searchBox = document.getElementById('searchStudents');
+                searchBox.addEventListener('input', filterAdminResults);
+                
+            } catch (error) {
+                console.error('Error loading admin results:', error);
+                container.innerHTML = '<div class="error">Error loading results: ' + error.message + '</div>';
+            }
+        }
+
+        function filterAdminResults() {
+            const searchTerm = document.getElementById('searchStudents').value.toLowerCase();
+            const rows = document.querySelectorAll('#adminResultsContainer tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function editStudentResult(resultId) {
+            // Implementation for editing student results
+            alert('Edit functionality would be implemented here for result ID: ' + resultId);
+        }
+
+        async function confirmDeleteResult(resultId, studentName) {
+            document.getElementById('deleteConfirmText').textContent = 
+                `Are you sure you want to delete the exam result for ${studentName}? This action cannot be undone.`;
+            
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            confirmBtn.onclick = () => deleteResult(resultId);
+            
+            showModal('deleteConfirmModal');
+        }
+
+        async function deleteResult(resultId) {
+            try {
+                const { error } = await supabase
+                    .from('exam_results')
+                    .delete()
+                    .eq('id', resultId);
+                
+                if (error) throw error;
+                
+                closeModal('deleteConfirmModal');
+                loadAdminResults();
+                loadAdminStats();
+                
+            } catch (error) {
+                console.error('Error deleting result:', error);
+                alert('Error deleting result: ' + error.message);
+            }
+        }
+
+        function logoutAdmin() {
+            showScreen('welcomeScreen');
+        }
+
+        // Modal functions
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // PDF Export functions
+        function downloadResultsAsPDF() {
+            alert('PDF download functionality would be implemented here');
+        }
+
+        function downloadAllResultsAsPDF() {
+            alert('All results PDF download functionality would be implemented here');
+        }
+    </script>
+</body>
+</html>
